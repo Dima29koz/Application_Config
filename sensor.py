@@ -17,7 +17,6 @@ class Sensor:
 
     def get_current_data(self) -> dict:
         value = self._data[self._cur_item]
-        # value['timestamp'] = datetime.datetime.now()
         self._cur_item += 1
         if self._cur_item == self._max_item:
             self._cur_item = 0

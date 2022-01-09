@@ -2,9 +2,8 @@ import tkinter as tk
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.pyplot as plt
 import matplotlib
-import math
 from functools import partial
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from firmware import Firmware
 from GUI.tooltip import create_tool_tip
@@ -37,7 +36,6 @@ class App:
                             command=partial(self.go_to_cont, cont.name, canvas))
             if cont.is_active:
                 status_lab = tk.Label(canvas, text='Активен', fg='green', font=font, padx=5)
-                # status_lab.bind("<Enter>", partial(self.show_status, cont.name))
                 time_from_error = datetime.now() - cont.last_error_time
                 time_overall = datetime.now() - cont.start_time
                 errors_amount = len(self.firmware.get_controller_errors(cont.name))
@@ -58,10 +56,10 @@ class App:
 
     def show_controller_page(self, cont_name):
         cont_frame = tk.Frame(self.root)
-        self.draw_graph(cont_frame)
+        self.draw_graph(cont_frame, cont_name)
         cont_frame.pack(expand=1)
 
-    def draw_graph(self, cont_frame):
+    def draw_graph(self, cont_frame, cont_name):
         fig, ax = plt.subplots()
         canvas = FigureCanvasTkAgg(fig, master=cont_frame)
         plot_widget = canvas.get_tk_widget()
@@ -69,8 +67,7 @@ class App:
         date = []
         activ = []
 
-        cont = self.firmware.get_controllers_names()[0]
-        log = self.firmware.get_controller_log(cont)
+        log = self.firmware.get_controller_log(cont_name)
 
         for elem in log['data']:
             if isinstance(elem, dict):
@@ -84,7 +81,7 @@ class App:
         ax.set_xticklabels([])
         ax.set_yticklabels([])
 
-        data = self.firmware.get_controller_data(cont)
+        data = self.firmware.get_controller_data(cont_name)
         btn_frame = tk.Frame(cont_frame)
         btn = tk.Button(btn_frame, text='<-', padx=10,
                         command=partial(self.back_page, cont_frame))
@@ -92,7 +89,7 @@ class App:
         sensors = list(data[0].keys())[:-1]
         for i, sensor in enumerate(sensors, 1):
             btn = tk.Button(btn_frame, text=sensor, padx=5,
-                            command=partial(self.update_graph, sensor, cont, fig, ax))
+                            command=partial(self.update_graph, sensor, cont_name, fig, ax))
             btn.pack(side=tk.LEFT)
 
         btn_frame.grid(row=0, column=0)
