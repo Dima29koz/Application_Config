@@ -65,5 +65,6 @@ class Firmware:
                     except ControllerException:
                         controller.last_error_time = start_of_period_time
                         self._data_for_day[i]['data'].append(start_of_period_time)
+                        self._data_for_day[i]['errors'].append(start_of_period_time)
                     finally:
                         start_of_period_time += time_step
